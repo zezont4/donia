@@ -2,7 +2,6 @@
 
 use App\Client;
 use App\Http\Requests\ClientRequest;
-use Bugsnag;
 
 class ClientController extends Controller
 {
