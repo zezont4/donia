@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Bugsnag;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -42,6 +43,8 @@ class Handler extends ExceptionHandler
 	 */
 	public function render($request, Exception $e)
 	{
+
+
 		if ($e instanceof ModelNotFoundException) {
 			$e = new NotFoundHttpException($e->getMessage(), $e);
 		}
@@ -49,6 +52,16 @@ class Handler extends ExceptionHandler
 		if (config('app.debug')) {
 			return $this->renderExceptionWithWhoops($e);
 		}
+
+		if (\Auth::user()) {
+			Bugsnag::setUser([
+				'id'    => \Auth::user()->id,
+				'name'  => \Auth::user()->name,
+				'email' => \Auth::user()->email
+			]);
+		}
+		Bugsnag::notifyError(get_class($e), $e->getMessage());
+
 		return parent::render($request, $e);
 	}
 
